@@ -5,4 +5,6 @@ type Product struct {
 	Description   string
 	Price         string
 	StockQuantity int
+	Max           int
+	Min           int
 }

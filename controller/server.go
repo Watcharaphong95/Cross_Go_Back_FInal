@@ -12,6 +12,7 @@ func StartServer() {
 		})
 	})
 	CustomerController(router)
+	ProductController(router)
 
 	router.Run()
 }

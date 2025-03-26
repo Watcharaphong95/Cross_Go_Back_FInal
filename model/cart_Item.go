@@ -12,7 +12,7 @@ type CartItem struct {
 	CreatedAt   time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP"`
 	UpdatedAt   time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP"`
 	CartData    Cart      `gorm:"foreignKey:CartID;references:CartID"`
-	ProductData Product   `gorm:"foreignKey:;references:ProductID;references:ProductID"`
+	ProductData Product   `gorm:"foreignKey:ProductID;references:ProductID"`
 }
 
 func (m *CartItem) TableName() string {
