@@ -1,25 +1,8 @@
 package main
 
-import (
-	"fmt"
-
-	"github.com/spf13/viper"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-)
+import "final/controller"
 
 func main() {
-	viper.SetConfigName("config")
-	viper.AddConfigPath(".")
-	err := viper.ReadInConfig()
-	if err != nil {
-		panic(err)
-	}
-	dsn := viper.GetString("mysql.dsn")
-	dialactor := mysql.Open(dsn)
-	_, err = gorm.Open(dialactor)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Connection Success")
+	controller.Conn()
+	controller.StartServer()
 }
