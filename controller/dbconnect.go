@@ -8,6 +8,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var db = Conn()
+
 func Conn() *gorm.DB {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
