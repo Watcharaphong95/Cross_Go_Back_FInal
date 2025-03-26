@@ -1,13 +1,11 @@
 package controller
 
 import (
-	"errors"
 	"final/dto"
 	"final/model"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 func ProductController(router *gin.Engine) {
@@ -67,7 +65,7 @@ func addItemToCart(c *gin.Context) {
 		}
 		existingCartItem := model.CartItem{}
 		err := db.Where("cart_id = ? AND product_id = ?", userCart.CartID, userCart.ProductID).First(&existingCartItem)
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		if err.Error == nil {
 			existingCartItem.Quantity = cartAdd.Quantity
 			db.Save(existingCartItem)
 			if result.Error != nil {
@@ -76,7 +74,7 @@ func addItemToCart(c *gin.Context) {
 			c.JSON(200, gin.H{
 				"message": "Quanity item added",
 			})
-		} else if err.Error == nil {
+		} else {
 			result := db.Create(&cartAdd)
 			if result.Error != nil {
 				panic(result.Error)
