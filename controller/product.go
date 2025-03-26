@@ -1,11 +1,13 @@
 package controller
 
 import (
+	"errors"
 	"final/dto"
 	"final/model"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func ProductController(router *gin.Engine) {
@@ -54,7 +56,59 @@ func addItemToCart(c *gin.Context) {
 	if result.Error != nil {
 		panic(result.Error)
 	}
-	c.JSON(200, gin.H{
-		"message": cartItems,
-	})
+
+	userCart := model.CartItem{}
+	nameCartCheck := db.Joins("ProductData").Joins("CartData").Joins("CartData.CustomerData").Where("CartData.cart_name = ?", cartAdd.CartName).First(&userCart)
+	if nameCartCheck.Error == nil {
+		cartAdd := model.CartItem{
+			CartID:    userCart.CartID,
+			ProductID: userCart.ProductID,
+			Quantity:  userCart.Quantity,
+		}
+		existingCartItem := model.CartItem{}
+		err := db.Where("cart_id = ? AND product_id = ?", userCart.CartID, userCart.ProductID).First(&existingCartItem)
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			existingCartItem.Quantity = cartAdd.Quantity
+			db.Save(existingCartItem)
+			if result.Error != nil {
+				panic(result.Error)
+			}
+			c.JSON(200, gin.H{
+				"message": "Quanity item added",
+			})
+		} else if err.Error == nil {
+			result := db.Create(&cartAdd)
+			if result.Error != nil {
+				panic(result.Error)
+			}
+			c.JSON(200, gin.H{
+				"message": "New item added",
+			})
+		}
+	} else {
+		cart := model.Cart{
+			CustomerID: cartAdd.CustomerID,
+			CartName:   cartAdd.CartName,
+		}
+		result := db.Create(&cart)
+		if result.Error != nil {
+			panic(result.Error)
+		}
+		cartAdd_2 := model.CartItem{
+			CartID:    cart.CartID,
+			ProductID: cartAdd.ProductID,
+			Quantity:  cartAdd.Quantity,
+		}
+		result1 := db.Create(&cartAdd_2)
+		if result1.Error != nil {
+			panic(result1.Error)
+		}
+		c.JSON(200, gin.H{
+			"message": "New cart create and has been item",
+		})
+	}
+
+	// c.JSON(200, gin.H{
+	// 	"message": cartItems,
+	// })
 }
